@@ -1,0 +1,54 @@
+{
+  "name": "3d-space-query",
+  "version": "1.0.0",
+  "description": "a library for searching geometries based on a given geometry as query",
+  "main": "./dist/umd/index.js",
+  "module": "./dist/esm/index.js",
+  "exports": {
+    "import": "./dist/esm/index.js",
+    "node": "./dist/umd/index.js",
+    "require": "./dist/umd/index.js",
+    "default": "./dist/esm/index.js"
+  },
+  "types": "./dist/esm/index.d.ts",
+  "scripts": {
+    "postinstall": "chmod +x fixup.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm run build:pre && npm run build:umd && npm run build:esm && npm run build:post",
+    "build:dev": "webpack --mode=development",
+    "build:umd": "webpack --mode=production --node-env=production",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:pre": "rm -rf dist",
+    "build:post": "./fixup.js",
+    "watch": "webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZheyangSong/3d-space-query.git"
+  },
+  "files": [
+    "/dist"
+  ],
+  "keywords": [
+    "bvh",
+    "computational geometry",
+    "3d space search",
+    "collision detection",
+    "typescript",
+    "javascript"
+  ],
+  "author": "Zheyang Song",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ZheyangSong/3d-space-query/issues"
+  },
+  "homepage": "https://github.com/ZheyangSong/3d-space-query#readme",
+  "devDependencies": {
+    "@webpack-cli/generators": "^3.0.1",
+    "prettier": "^2.8.1",
+    "ts-loader": "^9.4.2",
+    "typescript": "^4.9.4",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1"
+  }
+}

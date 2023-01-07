@@ -2,12 +2,11 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
-    "module": "UMD",
+    "module": "CommonJS",
     "target": "ES5",
     "allowJs": true,
     "sourceMap": true,
-    "declaration": true,
-    "declarationDir": "dist/umd/"
+    "moduleResolution": "node"
   },
   "files": ["src/index.ts"]
 }

@@ -1,1 +1,3 @@
-console.log('index.ts');
+export * from './Engine';
+
+export { IPrimitive, IBoxALike } from './types';

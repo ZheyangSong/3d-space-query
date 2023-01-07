@@ -12,7 +12,6 @@
   },
   "types": "./dist/esm/index.d.ts",
   "scripts": {
-    "postinstall": "chmod +x fixup.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run build:pre && npm run build:umd && npm run build:esm && npm run build:post",
     "build:dev": "webpack --mode=development",
@@ -44,7 +43,6 @@
   },
   "homepage": "https://github.com/ZheyangSong/3d-space-query#readme",
   "devDependencies": {
-    "@webpack-cli/generators": "^3.0.1",
     "prettier": "^2.8.1",
     "ts-loader": "^9.4.2",
     "typescript": "^4.9.4",

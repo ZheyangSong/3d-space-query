@@ -36,7 +36,7 @@
     "typescript",
     "javascript"
   ],
-  "author": "Zheyang Song",
+  "author": "Zheyang Song <jerome_soung@hotmail.com> (https://github.com/ZheyangSong)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/ZheyangSong/3d-space-query/issues"

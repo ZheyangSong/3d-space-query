@@ -2,8 +2,8 @@ import { BVHNode } from './BVHNode';
 import { AABB } from './AABB';
 import { Bin } from './Bin';
 import { BestSplit } from './Bestsplit';
-import { expandToMin, expandToMax, surfaceArea } from './utils';
-import type { IPrimitive, IBoxALike, NumericArrayLike } from './types';
+import { expandToMin, expandToMax, surfaceArea, intersectAABB } from './utils';
+import type { IPrimitive, IBoxALike } from './types';
 
 export class Engine {
   private bvhNodes: BVHNode[] | null = null;
@@ -230,7 +230,7 @@ export class Engine {
     }
 
     const node = this.bvhNodes[nodeIdx];
-    if (!this.intersectAABB(tgt, node.aabbMin, node.aabbMax)) {
+    if (!intersectAABB(tgt, node.aabbMin, node.aabbMax)) {
       return;
     }
 
@@ -244,17 +244,5 @@ export class Engine {
       this.intersect(tgt, node.leftFirst, result);
       this.intersect(tgt, node.leftFirst + 1, result);
     }
-  }
-
-  private intersectAABB(box: IBoxALike, bmin: NumericArrayLike, bmax: NumericArrayLike): boolean {
-    let result = true;
-  
-    for (let axis = 0; axis < 3 && result; axis++) {
-      result =
-        result &&
-        !(box.aabbMax[axis] < bmin[axis] || box.aabbMin[axis] > bmax[axis]);
-    }
-  
-    return result;
   }
 }

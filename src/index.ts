@@ -1,3 +1,2 @@
-export * from './Engine';
-
-export { IPrimitive, IBoxALike } from './types';
+export { Engine } from './js';
+export { NativeEngine } from './wasm/wrapper';

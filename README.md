@@ -2,8 +2,10 @@
 
 ## Planned development work:
 - [x] add a JS version of the single-threaded implementation
-- [ ] add a WASM verion of the single-threaded implementation
+- [ ] add a WASM verion of the single-threaded implementation --- **in progress**
 - [ ] add basic UTs monitoring the different implementations' correctness
+  - [x] JS implementation (single-threaded)
+  - [ ] WASM implementation (single-threaded)
 - [ ] add basic script running benchmark tasks against different implmenetations. And set up intuitive speed/performance expectation. 
   - in term of speed:
     - multi-threaded is faster than single threaded

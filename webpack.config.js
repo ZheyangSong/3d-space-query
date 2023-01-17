@@ -1,14 +1,14 @@
-// Generated using webpack-cli https://github.com/webpack/webpack-cli
-
 const path = require("path");
 
 const isProduction = process.env.NODE_ENV == "production";
 
 const config = {
   devtool: "source-map",
-  entry: "./src/index.ts",
+  entry: {
+    index: "./src/index.ts",
+  },
   output: {
-    filename: "index.js",
+    filename: "[name].js",
     path: path.resolve(__dirname, "dist/umd"),
     globalObject: "globalThis",
     library: {
@@ -25,12 +25,12 @@ const config = {
       {
         test: /\.ts$/i,
         loader: "ts-loader",
-        exclude: ["/node_modules/"],
+        exclude: ["/node_modules/", path.resolve(__dirname, 'src/wasm/native/assembly_module/')],
       },
     ],
   },
   resolve: {
-    extensions: [".ts", ".js", "..."],
+    extensions: [".ts", "..."],
   },
 };
 

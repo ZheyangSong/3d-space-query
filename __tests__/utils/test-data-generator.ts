@@ -1,4 +1,4 @@
-import { IPrimitive } from '../../src';
+import { IPrimitive } from '../../src/js';
 
 export function genTestData(primitiveCnt: number, targetCnt: number) {
   const primitives = genObjs([-1000, -1000, -1000], [1000, 1000, 1000], [30, 20, 50], primitiveCnt);

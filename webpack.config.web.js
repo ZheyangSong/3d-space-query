@@ -32,11 +32,13 @@ const config = {
         }
       },
       {
-        test: /wasm-core\.js$/i,
-        loader: "exports-loader",
-        options: {
-          type: "module",
-          exports: "WasmLoader",
+        test: /\.js$/,
+        type: "javascript/auto",
+      },
+      {
+        test: /\.js$/,
+        resolve: {
+          fullySpecified: false,
         },
       },
     ],

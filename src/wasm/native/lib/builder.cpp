@@ -1,46 +1,42 @@
-#include <iostream>
 #include <algorithm>
-#include "./engine.h"
+#include "./builder.h"
 #include "./bin.h"
-#include "./utils.h"
-#include "./primitive.h"
 #include "./box.h"
 
 using namespace std;
 
-vector<uint> Engine::getOrderedPrimIndices()
-{
-  return primitiveIndices;
-}
+uint nodesUsed;
 
-vector<BvhNode> Engine::build(const vector<Primitive> &primitives)
-{
+/**
+ * primitive memory layout
+ * aabbmin(3f) | aabbmax(3f) | centroid(3f)
+ * 
+ * tree node memory layout
+ * aabbmin(3f) | aabbmax(3f) | leftFirst (ui) | primCount (ui)
+ */
+extern "C" void build(const float * primitives, uint pSize, uint * indices, BvhNode * tree) {
   nodesUsed = 1;
-  N = primitives.size();
 
-  bvhNodes.resize(2 * N - 1);
-  fill(bvhNodes.begin(), bvhNodes.end(), BvhNode());
-
-  primitiveIndices.resize(N);
-  for (uint i = 0; i < N; i++)
-  {
-    primitiveIndices[i] = i;
+  if (pSize <= 0) {
+    return;
   }
 
   const uint rootNodeIdx = 0;
-  BvhNode &root = bvhNodes[rootNodeIdx];
+  BvhNode &root = tree[rootNodeIdx];
   root.leftFirst = 0;
-  root.primCount = N;
+  root.primCount = pSize;
 
-  updateNodeBounds(rootNodeIdx, primitives);
-  subdivide(rootNodeIdx, primitives);
+  for (int i = 0; i < pSize; i++) {
+    indices[i] = i;
+  }
 
-  return bvhNodes;
+  updateNodeBounds(rootNodeIdx, reinterpret_cast<const Primitive *>(primitives), pSize, indices, tree);
+  subdivide(rootNodeIdx, reinterpret_cast<const Primitive *>(primitives), pSize, indices, tree);
 }
 
-void Engine::updateNodeBounds(const uint &nodeIdx, const vector<Primitive> &primitives)
+void updateNodeBounds(const uint &nodeIdx, const Primitive * primitives, uint &pSize, uint * indices, BvhNode * tree)
 {
-  BvhNode &node = bvhNodes[nodeIdx];
+  BvhNode &node = tree[nodeIdx];
   if (!node.primCount)
   {
     return;
@@ -49,7 +45,7 @@ void Engine::updateNodeBounds(const uint &nodeIdx, const vector<Primitive> &prim
   uint last = node.leftFirst + node.primCount;
   for (uint i = node.leftFirst; i < last; i++)
   {
-    const Primitive &primitive = primitives[primitiveIndices[i]];
+    const Primitive &primitive = primitives[indices[i]];
 
     node.aabbMin.x = min(node.aabbMin.x, primitive.aabbMin.x);
     node.aabbMin.y = min(node.aabbMin.y, primitive.aabbMin.y);
@@ -61,11 +57,11 @@ void Engine::updateNodeBounds(const uint &nodeIdx, const vector<Primitive> &prim
   }
 }
 
-void Engine::subdivide(const uint &nodeIdx, const vector<Primitive> &primitives)
+void subdivide(const uint &nodeIdx, const Primitive * primitives, uint &pSize, uint * indices, BvhNode * tree)
 {
-  BvhNode &node = bvhNodes[nodeIdx];
+  BvhNode &node = tree[nodeIdx];
 
-  BestSplit res = findBestSplitPlane(node, primitives);
+  BestSplit res = findBestSplitPlane(node, primitives, indices);
   const unsigned short axis = res.axis;
   const float splitPlane = res.splitPlane;
   const float splitCost = res.splitCost;
@@ -80,7 +76,7 @@ void Engine::subdivide(const uint &nodeIdx, const vector<Primitive> &primitives)
   uint j = i + node.primCount - 1;
   while (i <= j)
   {
-    const Primitive &primitive = primitives[primitiveIndices[i]];
+    const Primitive &primitive = primitives[indices[i]];
 
     if (primitive.centroid[axis] < splitPlane)
     {
@@ -88,7 +84,7 @@ void Engine::subdivide(const uint &nodeIdx, const vector<Primitive> &primitives)
     }
     else
     {
-      swap(i, j--, primitiveIndices);
+      swap(i, j--, indices);
     }
   }
 
@@ -100,19 +96,19 @@ void Engine::subdivide(const uint &nodeIdx, const vector<Primitive> &primitives)
 
   uint leftChildIdx = nodesUsed++;
   uint rightChildIdx = nodesUsed++;
-  bvhNodes[leftChildIdx].leftFirst = node.leftFirst;
-  bvhNodes[leftChildIdx].primCount = leftCount;
-  bvhNodes[rightChildIdx].leftFirst = i;
-  bvhNodes[rightChildIdx].primCount = node.primCount - leftCount;
+  tree[leftChildIdx].leftFirst = node.leftFirst;
+  tree[leftChildIdx].primCount = leftCount;
+  tree[rightChildIdx].leftFirst = i;
+  tree[rightChildIdx].primCount = node.primCount - leftCount;
   node.leftFirst = leftChildIdx;
   node.primCount = 0;
-  updateNodeBounds(leftChildIdx, primitives);
-  updateNodeBounds(rightChildIdx, primitives);
-  subdivide(leftChildIdx, primitives);
-  subdivide(rightChildIdx, primitives);
+  updateNodeBounds(leftChildIdx, primitives, pSize, indices, tree);
+  updateNodeBounds(rightChildIdx, primitives, pSize, indices, tree);
+  subdivide(leftChildIdx, primitives, pSize, indices, tree);
+  subdivide(rightChildIdx, primitives, pSize, indices, tree);
 }
 
-BestSplit Engine::findBestSplitPlane(const BvhNode &bvhNode, const vector<Primitive> &primitives)
+BestSplit findBestSplitPlane(const BvhNode &bvhNode, const Primitive * primitives, uint * indices)
 {
   unsigned short bestAxis = 0;
   float bestPlane = -1;
@@ -127,7 +123,7 @@ BestSplit Engine::findBestSplitPlane(const BvhNode &bvhNode, const vector<Primit
 
     for (uint i = 0; i < pCnt; i++)
     {
-      const Primitive &primitive = primitives[primitiveIndices[bvhNode.leftFirst + i]];
+      const Primitive &primitive = primitives[indices[bvhNode.leftFirst + i]];
 
       boundsMin = min(boundsMin, primitive.centroid[axis]);
       boundsMax = max(boundsMax, primitive.centroid[axis]);
@@ -143,7 +139,7 @@ BestSplit Engine::findBestSplitPlane(const BvhNode &bvhNode, const vector<Primit
     float rBinWidth = BIN_CNT / (boundsMax - boundsMin);
     for (uint i = 0; i < pCnt; i++)
     {
-      const Primitive &primitive = primitives[primitiveIndices[bvhNode.leftFirst + i]];
+      const Primitive &primitive = primitives[indices[bvhNode.leftFirst + i]];
       uint binIdx = min(BIN_CNT - 1, (uint)((primitive.centroid[axis] - boundsMin) * rBinWidth));
       bin[binIdx].primCount++;
       bin[binIdx].bounds.grow(primitive);
@@ -184,74 +180,7 @@ BestSplit Engine::findBestSplitPlane(const BvhNode &bvhNode, const vector<Primit
   return BestSplit{bestPlane, bestCost, bestAxis};
 }
 
-float Engine::calculateNodeCost(const BvhNode &bvhNode)
+float calculateNodeCost(const BvhNode &bvhNode)
 {
   return bvhNode.primCount * boxArea(bvhNode.aabbMin, bvhNode.aabbMax);
-}
-
-vector<uint> Engine::search(const Box &tgt)
-{
-  vector<uint> result;
-
-  if (!bvhNodes.size())
-  {
-    return result;
-  }
-
-  intersect(tgt, 0, result);
-
-  return result;
-}
-
-vector<vector<uint>> Engine::search(const vector<Box> &tgts)
-{
-  vector<vector<uint>> result;
-
-  for (auto tgt : tgts)
-  {
-    result.push_back(search(tgt));
-  }
-
-  return result;
-}
-
-void Engine::intersect(const Box &tgt, const uint &nodeIdx, vector<uint> &result)
-{
-  if (!bvhNodes.size())
-  {
-    return;
-  }
-
-  BvhNode &node = bvhNodes[nodeIdx];
-  if (!intersectAABB(tgt, node.aabbMin, node.aabbMax))
-  {
-    return;
-  }
-
-  if (node.isLeaf())
-  {
-    for (uint i = 0; i < node.primCount; i++)
-    {
-      result.push_back(primitiveIndices[node.leftFirst + i]);
-    }
-  }
-  else
-  {
-    intersect(tgt, node.leftFirst, result);
-    intersect(tgt, node.leftFirst + 1, result);
-  }
-}
-
-bool Engine::intersectAABB(const Box &box, const float3 &bmin, const float3 &bmax)
-{
-  bool result = true;
-
-  for (int axis = 0; axis < 3 && result; axis++)
-  {
-    result =
-        result &&
-        !(box.aabbMax[axis] < bmin[axis] || box.aabbMin[axis] > bmax[axis]);
-  }
-
-  return result;
 }

@@ -5,7 +5,7 @@
     "noImplicitAny": true,
     "module": "CommonJS",
     "target": "ES5",
-    "allowJs": false,
+    "allowJs": true,
     "sourceMap": true,
     "moduleResolution": "node",
     "typeRoots": [

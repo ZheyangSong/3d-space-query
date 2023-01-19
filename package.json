@@ -44,6 +44,7 @@
   "homepage": "https://github.com/ZheyangSong/3d-space-query#readme",
   "devDependencies": {
     "@jest/globals": "^29.3.1",
+    "@types/emscripten": "^1.39.6",
     "html-webpack-plugin": "^5.5.0",
     "jest": "^29.3.1",
     "prettier": "^2.8.1",

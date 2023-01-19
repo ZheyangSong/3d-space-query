@@ -1,22 +1,21 @@
 // Need to be in sync with the interface descriptions in lib/binding.cpp
+/// <reference types="emscripten" />
 
-export default function WasmLoader(): Promise<Lib>;
+declare const factory: EmscriptenModuleFactory<Lib>;
+export default factory;
 
-declare interface loaderCnfg {
-  locateFile?: (path: string, prefix: string) => string;
-}
-
-type Lib = {
+export interface Lib extends EmscriptenModule {
   BvhNode: typeof Lib.BvhNode;
   PrimitiveList: typeof Lib.PrimitiveList;
   BoxList: typeof Lib.BoxList;
   IndexList: typeof Lib.IndexList;
   MultiIndexLists: typeof Lib.MultiIndexLists;
   Engine: typeof Lib.Engine;
-  WasmLoader: typeof WasmLoader;
-};
+  ccall: typeof ccall;
+  cwrap: typeof cwrap;
+}
 
-declare namespace Lib {
+export declare namespace Lib {
   class BvhNode {
     public aabbMin: Float3;
     public aabbMax: Float3;

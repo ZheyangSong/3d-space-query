@@ -19,8 +19,8 @@ export class Engine {
     return e;
   }
 
-  private bvhNodes: BVHNode[] | null = null;
-  private primitiveIndices: number[] | null = null;
+  public bvhNodes: BVHNode[] | null = null;
+  public primitiveIndices: number[] | null = null;
   private nodesUsed: number = 1;
   private binCnt = 4;
   private lastBinIdx = this.binCnt - 1;

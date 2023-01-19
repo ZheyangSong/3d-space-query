@@ -3,6 +3,8 @@
 
 #include <vector>
 
+typedef unsigned int uint;
+
 // math
 struct float3
 {
@@ -22,8 +24,14 @@ inline float boxArea(const float3& min, const float3& max) {
   return diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 }
 
-inline void swap(const unsigned int& a, const unsigned int& b, std::vector<unsigned int>& arr) {
-  unsigned int tmp = arr[a];
+inline void swap(const uint& a, const uint& b, uint * arr) {
+  uint tmp = arr[a];
+  arr[a] = arr[b];
+  arr[b] = tmp;
+}
+
+inline void swap(const uint& a, const uint& b, std::vector<uint>& arr) {
+  uint tmp = arr[a];
   arr[a] = arr[b];
   arr[b] = tmp;
 }

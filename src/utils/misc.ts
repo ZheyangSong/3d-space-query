@@ -12,3 +12,11 @@ export function surfaceArea(box: IBoxALike): number {
 
   return xLen * yLen + yLen * zLen + zLen * xLen;
 }
+
+export function simpleDeepClone<S = any>(serializable: S) {
+  try {
+    return JSON.parse(JSON.stringify(serializable));
+  } catch {
+    return serializable;
+  }
+}

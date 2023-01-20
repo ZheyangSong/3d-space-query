@@ -2,10 +2,23 @@ import { BVHNode } from './BVHNode';
 import { AABB } from './AABB';
 import { Bin } from './Bin';
 import { BestSplit } from './Bestsplit';
-import { expandToMin, expandToMax, surfaceArea, intersectAABB } from './utils';
+import { expandToMin, expandToMax, surfaceArea, intersectAABB, simpleDeepClone } from './utils';
 import type { IPrimitive, IBoxALike } from './types';
 
 export class Engine {
+  public static from(obj: {
+    bvhNodes: BVHNode[],
+    primitiveIndices: number[],
+  }) {
+    const e = new Engine();
+
+    e.bvhNodes = simpleDeepClone(obj.bvhNodes);
+    e.primitiveIndices = simpleDeepClone(obj.primitiveIndices);
+    e.nodesUsed = e.bvhNodes!.length;
+
+    return e;
+  }
+
   private bvhNodes: BVHNode[] | null = null;
   private primitiveIndices: number[] | null = null;
   private nodesUsed: number = 1;

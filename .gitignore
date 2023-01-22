@@ -5,3 +5,4 @@ coverage
 .vscode
 native_dist
 build
+src/wasm/native/assembly_module/*.js

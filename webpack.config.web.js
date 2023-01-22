@@ -26,7 +26,10 @@ const config = {
       {
         test: /\.ts$/i,
         loader: "ts-loader",
-        exclude: ["/node_modules/", path.resolve(__dirname, 'src/wasm/native/assembly_module/')],
+        exclude: [
+          "/node_modules/",
+          path.resolve(__dirname, "src/wasm/native/assembly_module/"),
+        ],
         options: {
           configFile: path.resolve(__dirname, "tsconfig.web.json"),
         },

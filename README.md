@@ -2,7 +2,7 @@
 
 ## Planned development work:
 - [x] add a JS version of the single-threaded implementation
-- [ ] add a WASM verion of the single-threaded implementation --- **in progress**
+- [x] add a WASM verion of the single-threaded implementation
 - [ ] add basic UTs monitoring the different implementations' correctness
   - [x] JS implementation (single-threaded)
   - [ ] WASM implementation (single-threaded)

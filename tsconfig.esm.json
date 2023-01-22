@@ -7,5 +7,6 @@
     "declaration": true,
     "declarationDir": "dist/esm/",
     "sourceMap": false
-  }
+  },
+  "include": ["./src/**/*"] // https://github.com/Microsoft/TypeScript/issues/8591
 }

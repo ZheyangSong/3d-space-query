@@ -1,5 +1,5 @@
-import { IPrimitive, IBoxALike } from '../../src';
-import { intersectAABB } from '../../src/utils';
+import { IPrimitive, IBoxALike } from '../../src/js';
+import { intersectAABB } from '../../src/js/utils';
 
 export function genGroundTruth(primitives: IPrimitive[], targets: IBoxALike[]) {
   const start = performance.now();

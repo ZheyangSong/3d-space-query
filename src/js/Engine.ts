@@ -2,8 +2,9 @@ import { BVHNode } from './BVHNode';
 import { AABB } from './AABB';
 import { Bin } from './Bin';
 import { BestSplit } from './Bestsplit';
-import { expandToMin, expandToMax, surfaceArea, intersectAABB, simpleDeepClone } from './utils';
+import { expandToMin, expandToMax, surfaceArea, simpleDeepClone, calcAxialMidPoint } from './utils';
 import type { IPrimitive, IBoxALike } from './types';
+import { search } from './searcher';
 
 export class Engine {
   public static from(obj: {
@@ -56,7 +57,7 @@ export class Engine {
     this.rightBox = new AABB();
   }
 
-  public build(primitives: IPrimitive[], balanceFactor?: number): void {
+  public build(primitives: IBoxALike[], balanceFactor?: number): void {
     if (balanceFactor && this.binCnt !== balanceFactor) {
       this.binCnt = balanceFactor;
       this.init();
@@ -86,7 +87,7 @@ export class Engine {
     this.subdivide(rootNodeIdx, primitives);
   }
 
-  private updateNodeBounds(nodeIdx: number, primitives: IPrimitive[]): void {
+  private updateNodeBounds(nodeIdx: number, primitives: IBoxALike[]): void {
     const node = this.bvhNodes![nodeIdx];
 
     if (!node.primCount) {
@@ -103,7 +104,7 @@ export class Engine {
     }
   }
 
-  private subdivide(nodeIdx: number, primitives: IPrimitive[]): void {
+  private subdivide(nodeIdx: number, primitives: IBoxALike[]): void {
     const node = this.bvhNodes![nodeIdx];
   
     const { axis, splitPlane, splitCost } = this.findBestSplitPlane(
@@ -120,8 +121,9 @@ export class Engine {
     let j = i + node.primCount - 1;
     while (i <= j) {
       const primitive = primitives[this.primitiveIndices![i]];
+      const axialMidPoint = calcAxialMidPoint(primitive, axis);
 
-      if (primitive.centroid[axis] < splitPlane) {
+      if (axialMidPoint < splitPlane) {
         i++;
       } else {
         this.swap(i, j--, this.primitiveIndices!);
@@ -147,7 +149,7 @@ export class Engine {
     this.subdivide(rightChildIdx, primitives);
   }
 
-  private findBestSplitPlane(bvhNode: BVHNode, primitives: IPrimitive[]): BestSplit {
+  private findBestSplitPlane(bvhNode: BVHNode, primitives: IBoxALike[]): BestSplit {
     let bestAxis = 0;
     let bestPlane = 0;
     let bestCost = Infinity;
@@ -163,9 +165,10 @@ export class Engine {
 
       for (let i = 0; i < totalPrim; i++) {
         const primitive = primitives[this.primitiveIndices![bvhNode.leftFirst + i]];
+        const axialMidPoint = calcAxialMidPoint(primitive, axis);
 
-        boundsMin = Math.min(boundsMin, primitive.centroid[axis]);
-        boundsMax = Math.max(boundsMax, primitive.centroid[axis]);
+        boundsMin = Math.min(boundsMin, axialMidPoint);
+        boundsMax = Math.max(boundsMax, axialMidPoint);
       }
 
       if (boundsMax === boundsMin) {
@@ -175,9 +178,10 @@ export class Engine {
       const rBinWidth = this.binCnt / (boundsMax - boundsMin);
       for (let i = 0; i < totalPrim; i++) {
         const primitive = primitives[this.primitiveIndices![bvhNode.leftFirst + i]];
+        const axialMidPoint = calcAxialMidPoint(primitive, axis);
         const binIdx = Math.min(
           this.lastBinIdx,
-          Math.floor((primitive.centroid[axis] - boundsMin) * rBinWidth)
+          Math.floor((axialMidPoint - boundsMin) * rBinWidth)
         );
         this.bin[binIdx].primCount++;
         this.bin[binIdx].bounds.grow(primitive);
@@ -232,30 +236,9 @@ export class Engine {
       return result;
     }
 
-    this.intersect(target, 0, result);
-
-    return result;
-  }
-
-  private intersect(tgt: IBoxALike, nodeIdx: number, result: number[]): void {
-    if (!this.bvhNodes) {
-      return;
-    }
-
-    const node = this.bvhNodes[nodeIdx];
-    if (!intersectAABB(tgt, node.aabbMin, node.aabbMax)) {
-      return;
-    }
-
-    if (node.isLeaf) {
-      const totalPrim = node.primCount;
-
-      for (let i = 0; i < totalPrim; i++) {
-        result.push(this.primitiveIndices![node.leftFirst + i]);
-      }
-    } else {
-      this.intersect(tgt, node.leftFirst, result);
-      this.intersect(tgt, node.leftFirst + 1, result);
-    }
+    return search(target, {
+      bvhNodes: this.bvhNodes,
+      primitiveIndices: this.primitiveIndices
+    });
   }
 }

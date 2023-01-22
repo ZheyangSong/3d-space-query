@@ -2,7 +2,7 @@ export type TTget = ReturnType<typeof genObjs>[0];
 
 export interface IResult {
   object: TTget,
-  intersected: number[],
+  intersected: number[] | Uint32Array,
 }
 
 export function genObjs(
@@ -11,7 +11,7 @@ export function genObjs(
   [maxL, maxW, maxH]: number[],
   count: number
 ) {
-  const result: {aabbMin: number[]; aabbMax: number[]; centroid: number[];}[] = [];
+  const result: {aabbMin: number[]; aabbMax: number[];}[] = [];
 
   for (let i = 0; i < count; i++) {
     const aabbMin = [
@@ -28,11 +28,6 @@ export function genObjs(
     result.push({
       aabbMin,
       aabbMax,
-      centroid: [
-        (aabbMax[0] - aabbMin[0]) / 2 + aabbMin[0],
-        (aabbMax[1] - aabbMin[1]) / 2 + aabbMin[1],
-        (aabbMax[2] - aabbMin[2]) / 2 + aabbMin[2],
-      ],
     });
   }
 

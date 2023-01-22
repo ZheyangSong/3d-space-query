@@ -1,7 +1,7 @@
 #include <algorithm>
 #include "./builder.h"
-#include "./bin.h"
-#include "./box.h"
+#include "../bin.h"
+#include "../box.h"
 
 using namespace std;
 
@@ -14,29 +14,40 @@ uint nodesUsed;
  * tree node memory layout
  * aabbmin(3f) | aabbmax(3f) | leftFirst (ui) | primCount (ui)
  */
-extern "C" void build(const float * primitives, uint pSize, uint * indices, BvhNode * tree) {
+extern "C" void build(const void * boxMem, uint boxTotal, uint * indices, void * treeMem) {
   nodesUsed = 1;
 
-  if (pSize <= 0) {
+  if (boxTotal <= 0) {
     return;
   }
 
-  const uint rootNodeIdx = 0;
-  BvhNode &root = tree[rootNodeIdx];
-  root.leftFirst = 0;
-  root.primCount = pSize;
+  const Box * boxes = reinterpret_cast<const Box *>(boxMem);
+  BvhNode * tree = reinterpret_cast<BvhNode *>(treeMem);
 
-  for (int i = 0; i < pSize; i++) {
+  const uint rootNodeIdx = 0;
+  BvhNode &root = *(initNode(tree, rootNodeIdx));
+  root.leftFirst = 0;
+  root.primCount = boxTotal;
+
+  for (int i = 0; i < boxTotal; i++) {
     indices[i] = i;
   }
 
-  updateNodeBounds(rootNodeIdx, reinterpret_cast<const Primitive *>(primitives), pSize, indices, tree);
-  subdivide(rootNodeIdx, reinterpret_cast<const Primitive *>(primitives), pSize, indices, tree);
+  updateNodeBounds(root, boxes, boxTotal, indices);
+  subdivide(root, boxes, boxTotal, indices, tree);
 }
 
-void updateNodeBounds(const uint &nodeIdx, const Primitive * primitives, uint &pSize, uint * indices, BvhNode * tree)
+BvhNode * initNode(BvhNode * memPtr, uint index) {
+  /**
+   * Note: as the memory is initialized externally, 
+   *       each node's initial state isn't controlled.
+   *       Thus, it has to be updated to the proper one.
+   */
+  return new(memPtr + index) BvhNode();
+}
+
+void updateNodeBounds(BvhNode& node, const Box * boxes, uint &pSize, uint * indices)
 {
-  BvhNode &node = tree[nodeIdx];
   if (!node.primCount)
   {
     return;
@@ -45,7 +56,7 @@ void updateNodeBounds(const uint &nodeIdx, const Primitive * primitives, uint &p
   uint last = node.leftFirst + node.primCount;
   for (uint i = node.leftFirst; i < last; i++)
   {
-    const Primitive &primitive = primitives[indices[i]];
+    const Box &primitive = boxes[indices[i]];
 
     node.aabbMin.x = min(node.aabbMin.x, primitive.aabbMin.x);
     node.aabbMin.y = min(node.aabbMin.y, primitive.aabbMin.y);
@@ -57,11 +68,9 @@ void updateNodeBounds(const uint &nodeIdx, const Primitive * primitives, uint &p
   }
 }
 
-void subdivide(const uint &nodeIdx, const Primitive * primitives, uint &pSize, uint * indices, BvhNode * tree)
+void subdivide(BvhNode &node, const Box * boxes, uint &pSize, uint * indices, BvhNode * tree)
 {
-  BvhNode &node = tree[nodeIdx];
-
-  BestSplit res = findBestSplitPlane(node, primitives, indices);
+  BestSplit res = findBestSplitPlane(node, boxes, indices);
   const unsigned short axis = res.axis;
   const float splitPlane = res.splitPlane;
   const float splitCost = res.splitCost;
@@ -76,7 +85,7 @@ void subdivide(const uint &nodeIdx, const Primitive * primitives, uint &pSize, u
   uint j = i + node.primCount - 1;
   while (i <= j)
   {
-    const Primitive &primitive = primitives[indices[i]];
+    const Primitive &primitive = Primitive(boxes[indices[i]]);
 
     if (primitive.centroid[axis] < splitPlane)
     {
@@ -96,19 +105,21 @@ void subdivide(const uint &nodeIdx, const Primitive * primitives, uint &pSize, u
 
   uint leftChildIdx = nodesUsed++;
   uint rightChildIdx = nodesUsed++;
-  tree[leftChildIdx].leftFirst = node.leftFirst;
-  tree[leftChildIdx].primCount = leftCount;
-  tree[rightChildIdx].leftFirst = i;
-  tree[rightChildIdx].primCount = node.primCount - leftCount;
+  BvhNode & lNode = *(initNode(tree, leftChildIdx));
+  BvhNode & rNode = *(initNode(tree, rightChildIdx));
+  lNode.leftFirst = node.leftFirst;
+  lNode.primCount = leftCount;
+  rNode.leftFirst = i;
+  rNode.primCount = node.primCount - leftCount;
   node.leftFirst = leftChildIdx;
   node.primCount = 0;
-  updateNodeBounds(leftChildIdx, primitives, pSize, indices, tree);
-  updateNodeBounds(rightChildIdx, primitives, pSize, indices, tree);
-  subdivide(leftChildIdx, primitives, pSize, indices, tree);
-  subdivide(rightChildIdx, primitives, pSize, indices, tree);
+  updateNodeBounds(lNode, boxes, pSize, indices);
+  updateNodeBounds(rNode, boxes, pSize, indices);
+  subdivide(lNode, boxes, pSize, indices, tree);
+  subdivide(rNode, boxes, pSize, indices, tree);
 }
 
-BestSplit findBestSplitPlane(const BvhNode &bvhNode, const Primitive * primitives, uint * indices)
+BestSplit findBestSplitPlane(const BvhNode &bvhNode, const Box * boxes, uint * indices)
 {
   unsigned short bestAxis = 0;
   float bestPlane = -1;
@@ -123,8 +134,7 @@ BestSplit findBestSplitPlane(const BvhNode &bvhNode, const Primitive * primitive
 
     for (uint i = 0; i < pCnt; i++)
     {
-      const Primitive &primitive = primitives[indices[bvhNode.leftFirst + i]];
-
+      const Primitive &primitive = Primitive(boxes[indices[bvhNode.leftFirst + i]]);
       boundsMin = min(boundsMin, primitive.centroid[axis]);
       boundsMax = max(boundsMax, primitive.centroid[axis]);
     }
@@ -139,7 +149,7 @@ BestSplit findBestSplitPlane(const BvhNode &bvhNode, const Primitive * primitive
     float rBinWidth = BIN_CNT / (boundsMax - boundsMin);
     for (uint i = 0; i < pCnt; i++)
     {
-      const Primitive &primitive = primitives[indices[bvhNode.leftFirst + i]];
+      const Primitive &primitive = Primitive(boxes[indices[bvhNode.leftFirst + i]]);
       uint binIdx = min(BIN_CNT - 1, (uint)((primitive.centroid[axis] - boundsMin) * rBinWidth));
       bin[binIdx].primCount++;
       bin[binIdx].bounds.grow(primitive);

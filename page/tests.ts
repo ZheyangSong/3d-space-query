@@ -37,18 +37,19 @@ export const nativeBuildAndJsSearch = defineTest(
   (primitives, objToCheck) =>
     createEngine(true).then((engine) => {
       const timeMeasurer = getTimeMeasurer({
+        "build time": 0,
         "search time": 0,
       });
 
-      engine.build(primitives);
+      timeMeasurer.measure("build time", () => engine.build(primitives));
 
       const nativeEngineJSSearchResult = objToCheck.map((obj) => ({
         object: obj,
-        intersected: [] as any[],
+        intersected: [] as number[],
       }));
       timeMeasurer.measure("search time", () => {
         nativeEngineJSSearchResult.forEach(
-          (tgt) => (tgt.intersected = engine.plainSearch(tgt.object))
+          (tgt) => (tgt.intersected = engine.externalSearch(tgt.object))
         );
       });
       nativeEngineJSSearchResult.forEach((tgt) =>
@@ -56,43 +57,6 @@ export const nativeBuildAndJsSearch = defineTest(
       );
 
       return [nativeEngineJSSearchResult, timeMeasurer.getMeasures()];
-    })
-);
-
-export const nativeMemDirectBuildAndSearch = defineTest(
-  "native mem-direct build + search",
-  (primitives, objToCheck) =>
-    createEngine().then((engine) => {
-      const timeMeasurer = getTimeMeasurer({
-        "build time": 0,
-        "search time": 0,
-      });
-
-      timeMeasurer.measure("build time", () => engine.fasterBuild(primitives));
-
-      console.log(engine.fasterSearchTree);
-
-      const formatedObj = objToCheck.map(({ aabbMin, aabbMax }) => ({
-        aabbMax,
-        aabbMin,
-      }));
-      const result = timeMeasurer.measure("search time", () =>
-        engine.fasterSearch(formatedObj)
-      );
-      console.log("result faster", result);
-
-      const nativeEngineFasterSearchResult = result.map((r, i) => ({
-        object: objToCheck[i],
-        intersected: r,
-      }));
-      nativeEngineFasterSearchResult.forEach((tgt) =>
-        tgt.intersected.sort((a, b) => a - b)
-      );
-
-      return [
-        nativeEngineFasterSearchResult as any,
-        timeMeasurer.getMeasures(),
-      ];
     })
 );
 
@@ -104,18 +68,19 @@ export const jsBuildAndSearch = defineTest(
         "build time": 0,
         "search time": 0,
       });
+
       const engine = new Engine();
 
       timeMeasurer.measure("build time", () => engine.build(primitives));
 
       const targetsForEngine = objToCheck.map((obj) => ({
         object: obj,
-        intersected: [] as any[],
+        intersected: [] as number[],
       }));
 
       timeMeasurer.measure("search time", () => {
         targetsForEngine.forEach(
-          (tgt) => (tgt.intersected = engine.search(tgt.object as any))
+          (tgt) => (tgt.intersected = engine.search(tgt.object))
         );
       });
       targetsForEngine.forEach((tgt) => tgt.intersected.sort((a, b) => a - b));

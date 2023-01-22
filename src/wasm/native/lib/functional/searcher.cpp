@@ -7,9 +7,6 @@ using namespace std;
 extern "C" uint search(const Box *tgt, uint * indices, BvhNode * tree, uint*result)
 {
   vector<uint> foundIds;
-// std::cout << tgt->aabbMin.x << tgt->aabbMin.y << tgt->aabbMin.z;
-// std::cout << tgt->aabbMax.x << tgt->aabbMax.y << tgt->aabbMax.z;
-// std::cout << std::endl;
   intersect(*tgt, 0, tree, indices, foundIds);
 
   size_t foundTotal = foundIds.size();
@@ -20,18 +17,6 @@ extern "C" uint search(const Box *tgt, uint * indices, BvhNode * tree, uint*resu
 
   return foundTotal;
 }
-
-// vector<vector<uint>> Engine::search(const vector<Box> &tgts)
-// {
-//   vector<vector<uint>> result;
-
-//   for (auto tgt : tgts)
-//   {
-//     result.push_back(search(tgt));
-//   }
-
-//   return result;
-// }
 
 void intersect(const Box &tgt, const uint &nodeIdx, BvhNode * tree, uint * indices, vector<uint> &result)
 {

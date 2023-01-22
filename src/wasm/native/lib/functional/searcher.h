@@ -1,7 +1,7 @@
 #include <vector>
-#include "./utils.h"
-#include "./box.h"
-#include "./BvhNode.h"
+#include "../utils.h"
+#include "../box.h"
+#include "../BvhNode.h"
 
 extern "C" uint search(const Box *tgt, uint * indices, BvhNode * tree, uint*result);
 

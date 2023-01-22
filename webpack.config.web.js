@@ -9,12 +9,12 @@ const config = {
     index: "./page/index.ts",
   },
   output: {
-    filename: `bundle.js`,
-    path: path.resolve(__dirname, `dist_page`),
+    filename: "bundle.js",
+    path: path.resolve(__dirname, "dist_page"),
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, `public`, `index.html`),
+      template: path.join(__dirname, "page", "index.html"),
     }),
   ],
   module: {
@@ -29,7 +29,7 @@ const config = {
         exclude: ["/node_modules/", path.resolve(__dirname, 'src/wasm/native/assembly_module/')],
         options: {
           configFile: path.resolve(__dirname, "tsconfig.web.json"),
-        }
+        },
       },
       {
         test: /\.js$/,
@@ -51,7 +51,7 @@ const config = {
     loggingDebug: ["emscripten-loader"],
   },
   devServer: {
-    static: path.join(__dirname, `dist_page`),
+    static: path.join(__dirname, "dist_page"),
     compress: true,
     port: 8080,
     open: true,

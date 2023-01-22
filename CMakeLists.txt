@@ -18,4 +18,5 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
 add_subdirectory(src/wasm/native/lib)
+add_subdirectory(src/wasm/native/lib/functional)
 add_subdirectory(src/wasm/native/test_driver)

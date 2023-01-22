@@ -8,6 +8,7 @@ struct Box {
     float3 aabbMax;
 
     Box() = default;
+    Box(const Box &b): aabbMin(b.aabbMin), aabbMax(b.aabbMax) {}
     operator AABB() const { return AABB(aabbMin, aabbMax); }
 };
 

@@ -1,7 +1,5 @@
 import { Lib } from './native/assembly_module/wasm-core.js';
 
-// type TDataType = 'i8' | 'i16' | 'i32' | 'u8' | 'u16' | 'u32' | 'f32' | 'f64';
-
 type TP = {
   'i8': Int8Array,
   'i16': Int16Array,
@@ -13,9 +11,9 @@ type TP = {
   'f64': Float64Array,
 }
 
-type TK<F extends keyof TP> = TP[F];
-
 type TDataType = keyof TP;
+
+type TK<F extends TDataType> = TP[F];
 
 export class MemoryAllocator {
   private allocated: MemoryAllocator.Memory[] = [];

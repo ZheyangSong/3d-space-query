@@ -4,7 +4,6 @@ import {
   jsBuildAndSearch,
   nativeBuildAndJsSearch,
   nativeBuildAndSearch,
-  nativeMemDirectBuildAndSearch,
 } from "./tests";
 
 /**
@@ -75,7 +74,7 @@ const primitives = genObjs(
   primitiveCnt
 );
 
-const objCnt = 30000;
+const objCnt = 50_000;
 const objToCheck = genObjs(
   [-1000, -1000, -1000],
   [1000, 1000, 1000],
@@ -91,4 +90,3 @@ const gt = groundTruth(primitives, objToCheck, testStatusElem);
 jsBuildAndSearch(primitives, objToCheck, testStatusElem, gt);
 nativeBuildAndJsSearch(primitives, objToCheck, testStatusElem, gt);
 nativeBuildAndSearch(primitives, objToCheck, testStatusElem, gt);
-nativeMemDirectBuildAndSearch(primitives, objToCheck, testStatusElem, gt);

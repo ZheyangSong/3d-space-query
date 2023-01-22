@@ -24,3 +24,13 @@
   - [x] initial support: aabb
   - [ ] later support: ray
 - [ ] (bonus) migrate multi-threaded implementations to GPU if possible
+
+## Example Screenshots:
+* index 5000 boxes + check 50000 targets
+  ![index 5000 boxes + check 50000 targets](screenshots/5000_50000.png)
+
+* index 50000 boxes + check 50000 targets
+  ![index 50000 boxes + check 50000 targets](screenshots/50000_50000.png)
+
+* index 100000 boxes + check 50000 targets
+  ![index 100000 boxes + check 50000 targets](screenshots/100000_50000.png)

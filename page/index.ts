@@ -74,7 +74,7 @@ const primitives = genObjs(
   primitiveCnt
 );
 
-const objCnt = 50_000;
+const objCnt = 20_000;
 const objToCheck = genObjs(
   [-1000, -1000, -1000],
   [1000, 1000, 1000],

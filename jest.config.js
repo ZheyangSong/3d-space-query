@@ -100,7 +100,7 @@ module.exports = {
   // notifyMode: "failure-change",
 
   // A preset that is used as a base for Jest's configuration
-  preset: "ts-jest",
+  preset: "ts-jest/presets/js-with-ts",
 
   // Run tests from one or more projects
   // projects: undefined,
@@ -172,7 +172,16 @@ module.exports = {
   // testRunner: "jest-circus/runner",
 
   // A map from regular expressions to paths to transformers
-  // transform: undefined,
+  transform: {
+    // '^.+\\.[tj]sx?$' to process js/ts with `ts-jest`
+    // '^.+\\.m?[tj]sx?$' to process js/ts/mjs/mts with `ts-jest`
+    "^.+\\.[tj]sx?$": [
+      "ts-jest",
+      {
+        "tsconfig": "tsconfig.test.json"
+      }
+    ]
+  },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
   // transformIgnorePatterns: [

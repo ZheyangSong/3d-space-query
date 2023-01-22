@@ -1,6 +1,7 @@
 import { Engine } from "../dist/esm";
-import { defineTest, createEngine, getTimeMeasurer } from "./test-utils";
+import { defineTest, createEngine } from "./test-utils";
 import { intersectAABB } from "../src/js/utils";
+import { getTimeMeasurer } from '../utils';
 
 export const nativeBuildAndSearch = defineTest(
   "native build + native search",

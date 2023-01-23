@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "node16",
+    "target": "ESNext",
+    "lib": ["ESNext"],
+    "downlevelIteration": true,
+    "resolveJsonModule": true,
+  },
+}

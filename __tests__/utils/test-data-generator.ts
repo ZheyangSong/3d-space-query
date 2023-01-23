@@ -1,4 +1,4 @@
-import { IPrimitive } from '../../src/js';
+import { IBoxALike } from '../../src/js';
 
 export function genTestData(primitiveCnt: number, targetCnt: number) {
   const primitives = genObjs([-1000, -1000, -1000], [1000, 1000, 1000], [30, 20, 50], primitiveCnt);
@@ -10,8 +10,13 @@ export function genTestData(primitiveCnt: number, targetCnt: number) {
   };
 }
 
-function genObjs([minX, minY, minZ]: number[], [maxX, maxY, maxZ]: number[], [maxL, maxW, maxH]: number[], count: number) {
-  const result: IPrimitive[] = [];
+export function genObjs(
+  [minX, minY, minZ]: number[],
+  [maxX, maxY, maxZ]: number[],
+  [maxL, maxW, maxH]: number[],
+  count: number
+) {
+  const result: IBoxALike[] = [];
 
   for (let i = 0; i < count; i++) {
     const aabbMin = [
@@ -24,15 +29,10 @@ function genObjs([minX, minY, minZ]: number[], [maxX, maxY, maxZ]: number[], [ma
       Math.min(Math.random() * (maxW + 1) + aabbMin[1], maxY),
       Math.min(Math.random() * (maxH + 1) + aabbMin[2], maxZ),
     ];
-  
+
     result.push({
       aabbMin,
       aabbMax,
-      centroid: [
-        (aabbMax[0] - aabbMin[0]) / 2 + aabbMin[0],
-        (aabbMax[1] - aabbMin[1]) / 2 + aabbMin[1],
-        (aabbMax[2] - aabbMin[2]) / 2 + aabbMin[2],
-      ]
     });
   }
 

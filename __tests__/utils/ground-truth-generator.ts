@@ -1,7 +1,7 @@
-import { IPrimitive, IBoxALike } from '../../src/js';
+import { IBoxALike } from '../../src/js';
 import { intersectAABB } from '../../src/js/utils';
 
-export function genGroundTruth(primitives: IPrimitive[], targets: IBoxALike[]) {
+export function genGroundTruth(primitives: IBoxALike[], targets: IBoxALike[]) {
   const start = performance.now();
   const result = brutalForceSearch(primitives, targets);
   const executionTime = performance.now() - start;
@@ -12,7 +12,7 @@ export function genGroundTruth(primitives: IPrimitive[], targets: IBoxALike[]) {
   };
 }
 
-function brutalForceSearch(primitives: IPrimitive[], targets: IBoxALike[]) {
+function brutalForceSearch(primitives: IBoxALike[], targets: IBoxALike[]) {
   const result: number[][] = [];
   const primitiveCnt = primitives.length;
 

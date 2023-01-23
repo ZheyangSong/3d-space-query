@@ -1,10 +1,11 @@
-import { TTestSpecElement, TTestStatusElement, genObjs } from "./utils";
+import { genTestData } from "../__tests__/utils";
+import { TTestSpecElement, TTestStatusElement } from "./utils";
 import {
-  groundTruth,
-  jsBuildAndSearch,
-  nativeBuildAndJsSearch,
-  nativeBuildAndSearch,
-} from "./tests";
+  execGroundTruthTest,
+  execJsBuildAndSearchTest,
+  execNativeBuildAndJsSearchTest,
+  execNativeBuildAndSearchTest,
+} from "./test-cases";
 
 /**
  * ----------------------------
@@ -21,7 +22,7 @@ import {
 
 const rootElem = document.getElementById("root")!;
 
-const inlineStyleElem = document.createElement('style');
+const inlineStyleElem = document.createElement("style");
 inlineStyleElem.textContent = `
 .test-status-container {
   display: flex;
@@ -63,30 +64,20 @@ testStatusElem["addTestStatus"] = function (status: string) {
   statusElem.innerHTML = status;
 
   this.appendChild(statusElem);
+
+  return statusElem;
 };
 
 // Prepare testing data --- START
-const primitiveCnt = 5_000;
-const primitives = genObjs(
-  [-1000, -1000, -1000],
-  [1000, 1000, 1000],
-  [30, 20, 50],
-  primitiveCnt
-);
-
-const objCnt = 20_000;
-const objToCheck = genObjs(
-  [-1000, -1000, -1000],
-  [1000, 1000, 1000],
-  [40, 20, 30],
-  objCnt
-);
+const primitiveCnt = 50_000;
+const objCnt = 50_000;
+const { primitives, targets } = genTestData(primitiveCnt, objCnt);
 // Prepare testing data --- END
 
 testSpecElement.addTestSpec(`primitive total: ${primitiveCnt}`);
 testSpecElement.addTestSpec(`target total: ${objCnt}`);
 
-const gt = groundTruth(primitives, objToCheck, testStatusElem);
-jsBuildAndSearch(primitives, objToCheck, testStatusElem, gt);
-nativeBuildAndJsSearch(primitives, objToCheck, testStatusElem, gt);
-nativeBuildAndSearch(primitives, objToCheck, testStatusElem, gt);
+const gt = execGroundTruthTest({primitives, targets, e: testStatusElem});
+execJsBuildAndSearchTest({primitives, targets, e: testStatusElem, gt});
+execNativeBuildAndJsSearchTest({primitives, targets, e: testStatusElem, gt});
+execNativeBuildAndSearchTest({primitives, targets, e: testStatusElem, gt});

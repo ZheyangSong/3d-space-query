@@ -69,8 +69,8 @@ testStatusElem["addTestStatus"] = function (status: string) {
 };
 
 // Prepare testing data --- START
-const primitiveCnt = 50_000;
-const objCnt = 50_000;
+const primitiveCnt = 10_000;
+const objCnt = 30_000;
 const { primitives, targets } = genTestData(primitiveCnt, objCnt);
 // Prepare testing data --- END
 

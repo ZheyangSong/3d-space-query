@@ -12,8 +12,4 @@ export class BVHNode {
     this.aabbMax = [-Infinity, -Infinity, -Infinity];
     this.aabbMin = [Infinity, Infinity, Infinity];
   }
-
-  get isLeaf(): boolean {
-    return this.primCount > 0;
-  }
 }

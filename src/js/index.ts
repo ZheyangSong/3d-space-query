@@ -1,3 +1,3 @@
 export * from './Engine';
 
-export { IPrimitive, IBoxALike } from './types';
+export { IBoxALike } from './types';

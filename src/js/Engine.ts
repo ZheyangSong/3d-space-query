@@ -3,7 +3,7 @@ import { AABB } from './AABB';
 import { Bin } from './Bin';
 import { BestSplit } from './Bestsplit';
 import { expandToMin, expandToMax, surfaceArea, simpleDeepClone, calcAxialMidPoint } from './utils';
-import type { IPrimitive, IBoxALike } from './types';
+import type { IBoxALike } from './types';
 import { search } from './searcher';
 
 export class Engine {

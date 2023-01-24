@@ -29,7 +29,7 @@ function intersect(
     return;
   }
 
-  if (node.isLeaf) {
+  if (isLeaf(node)) {
     result.push(
       ...tree.primitiveIndices.slice(
         node.leftFirst,
@@ -40,4 +40,8 @@ function intersect(
     intersect(target, node.leftFirst, tree, result);
     intersect(target, node.leftFirst + 1, tree, result);
   }
+}
+
+function isLeaf(node: BVHNode) {
+  return node.primCount > 0;
 }

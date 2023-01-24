@@ -155,9 +155,6 @@ export class NativeEngine {
           aabbMax: [floatSlice[3], floatSlice[4], floatSlice[5]],
           leftFirst: intSlice[0],
           primCount: intSlice[1],
-          get isLeaf() {
-            return this.primCount > 0;
-          },
         });
       }
 

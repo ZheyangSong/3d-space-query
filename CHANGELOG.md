@@ -13,5 +13,7 @@
 - introduce wasm-based implementation, `NativeEngine`. This implemetation guarantees better build speed. But, the generated tree doesn't result in the best search performance. Thus, this implementation's cumulative search speed is slower than `Engine` for the moment. This might not be a significant issue, if the searching can be spreaded across multiple frames. Also, it's recommended to consider the wasm-based one for building huge search space (# of primitives > 10000).
 
 ## 1.2.1
-- fix broken `Engine.search` when an `Engine` is instantiated via `Engine.from`.
+- Duplicated.
 
+## 1.2.2
+- fix broken `Engine.search` when an `Engine` is instantiated via `Engine.from`.

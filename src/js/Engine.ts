@@ -1,16 +1,19 @@
-import { BVHNode } from './BVHNode';
-import { AABB } from './AABB';
-import { Bin } from './Bin';
-import { BestSplit } from './Bestsplit';
-import { expandToMin, expandToMax, surfaceArea, simpleDeepClone, calcAxialMidPoint } from './utils';
-import type { IBoxALike, TPoint } from './types';
-import { search } from './searcher';
+import { BVHNode } from "./BVHNode";
+import { AABB } from "./AABB";
+import { Bin } from "./Bin";
+import { BestSplit } from "./Bestsplit";
+import {
+  expandToMin,
+  expandToMax,
+  surfaceArea,
+  simpleDeepClone,
+  calcAxialMidPoint,
+} from "./utils";
+import type { IBoxALike, TPoint } from "./types";
+import { search } from "./searcher";
 
 export class Engine {
-  public static from(obj: {
-    bvhNodes: BVHNode[],
-    primitiveIndices: number[],
-  }) {
+  public static from(obj: { bvhNodes: BVHNode[]; primitiveIndices: number[] }) {
     const e = new Engine();
 
     e.bvhNodes = simpleDeepClone(obj.bvhNodes);
@@ -95,7 +98,7 @@ export class Engine {
     }
 
     const last = node.leftFirst + node.primCount;
-  
+
     for (let i = node.leftFirst; i < last; i++) {
       const primitive = primitives[this.primitiveIndices![i]];
 
@@ -106,7 +109,7 @@ export class Engine {
 
   private subdivide(nodeIdx: number, primitives: IBoxALike[]): void {
     const node = this.bvhNodes![nodeIdx];
-  
+
     const { axis, splitPlane, splitCost } = this.findBestSplitPlane(
       node,
       primitives
@@ -116,7 +119,7 @@ export class Engine {
     if (splitCost >= nodeCost) {
       return;
     }
-  
+
     let i = node.leftFirst;
     let j = i + node.primCount - 1;
     while (i <= j) {
@@ -129,12 +132,12 @@ export class Engine {
         this.swap(i, j--, this.primitiveIndices!);
       }
     }
-  
+
     const leftCount = i - node.leftFirst;
     if (leftCount === 0 || leftCount === node.primCount) {
       return;
     }
-  
+
     const leftChildIdx = this.nodesUsed++;
     const rightChildIdx = this.nodesUsed++;
     this.bvhNodes![leftChildIdx].leftFirst = node.leftFirst;
@@ -149,14 +152,17 @@ export class Engine {
     this.subdivide(rightChildIdx, primitives);
   }
 
-  private findBestSplitPlane(bvhNode: BVHNode, primitives: IBoxALike[]): BestSplit {
+  private findBestSplitPlane(
+    bvhNode: BVHNode,
+    primitives: IBoxALike[]
+  ): BestSplit {
     let bestAxis = 0;
     let bestPlane = 0;
     let bestCost = Infinity;
     const totalPrim = bvhNode.primCount;
 
     [0 /* x */, 1 /* y */, 2 /* z */].forEach((axis) => {
-      this.bin.forEach(b => b.reset());
+      this.bin.forEach((b) => b.reset());
       this.leftBox.reset();
       this.rightBox.reset();
 
@@ -164,7 +170,8 @@ export class Engine {
       let boundsMax = -Infinity;
 
       for (let i = 0; i < totalPrim; i++) {
-        const primitive = primitives[this.primitiveIndices![bvhNode.leftFirst + i]];
+        const primitive =
+          primitives[this.primitiveIndices![bvhNode.leftFirst + i]];
         const axialMidPoint = calcAxialMidPoint(primitive, axis);
 
         boundsMin = Math.min(boundsMin, axialMidPoint);
@@ -174,10 +181,11 @@ export class Engine {
       if (boundsMax === boundsMin) {
         return;
       }
-  
+
       const rBinWidth = this.binCnt / (boundsMax - boundsMin);
       for (let i = 0; i < totalPrim; i++) {
-        const primitive = primitives[this.primitiveIndices![bvhNode.leftFirst + i]];
+        const primitive =
+          primitives[this.primitiveIndices![bvhNode.leftFirst + i]];
         const axialMidPoint = calcAxialMidPoint(primitive, axis);
         const binIdx = Math.min(
           this.lastBinIdx,
@@ -199,10 +207,12 @@ export class Engine {
         this.rightBox.grow(this.bin[this.lastBinIdx - i].bounds);
         this.rightArea[this.lastBinIdx - 1 - i] = this.rightBox.area();
       }
-  
+
       const binWidth = (boundsMax - boundsMin) / this.binCnt;
       for (let i = 0; i < this.lastBinIdx; i++) {
-        const cost = this.leftCount[i] * this.leftArea[i] + this.rightCount[i] * this.rightArea[i];
+        const cost =
+          this.leftCount[i] * this.leftArea[i] +
+          this.rightCount[i] * this.rightArea[i];
 
         if (cost < bestCost) {
           bestPlane = boundsMin + binWidth * (i + 1);
@@ -210,8 +220,8 @@ export class Engine {
           bestCost = cost;
         }
       }
-    })
-  
+    });
+
     return {
       axis: bestAxis,
       splitPlane: bestPlane,
@@ -238,7 +248,7 @@ export class Engine {
 
     return search(target, {
       bvhNodes: this.bvhNodes,
-      primitiveIndices: this.primitiveIndices
+      primitiveIndices: this.primitiveIndices,
     });
   }
 }

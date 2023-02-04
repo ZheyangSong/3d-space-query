@@ -23,30 +23,30 @@ export declare namespace Lib {
     public primCount: number;
     public isLeaf(): boolean;
   }
-  
+
   class PrimitiveList extends Vector<Primitive> {}
 
   class BoxList extends Vector<Box> {}
-  
+
   class IndexList extends Vector<number> {}
-  
+
   class MultiIndexLists extends Vector<IndexList> {}
-  
+
   class BvhNodeList extends Vector<BvhNode> {}
-  
+
   class Engine {
     public build(aabbBoxes: PrimitiveList): BvhNodeList;
     public getOrderedPrimIndices(): IndexList;
     public searchOne(target: Box): IndexList;
     public searchMany(target: BoxList): MultiIndexLists;
   }
-  
+
   class Vector<T> {
     public get(i: number): T;
     public push_back(item: T): void;
     public size(): number;
   }
-  
+
   class Float3 {
     public x: number;
     public y: number;

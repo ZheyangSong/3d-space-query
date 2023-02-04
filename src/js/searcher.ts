@@ -1,6 +1,6 @@
 import { BVHNode } from "./BVHNode";
 import { IBoxALike, TPoint } from "./types";
-import { isIntersected } from './utils';
+import { isIntersected } from "./utils";
 
 export interface ISearchTree {
   bvhNodes: BVHNode[];

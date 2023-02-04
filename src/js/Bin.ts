@@ -1,4 +1,4 @@
-import { AABB } from './AABB';
+import { AABB } from "./AABB";
 
 export class Bin {
   public readonly bounds: AABB;

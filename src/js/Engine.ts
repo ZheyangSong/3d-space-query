@@ -3,7 +3,7 @@ import { AABB } from './AABB';
 import { Bin } from './Bin';
 import { BestSplit } from './Bestsplit';
 import { expandToMin, expandToMax, surfaceArea, simpleDeepClone, calcAxialMidPoint } from './utils';
-import type { IBoxALike } from './types';
+import type { IBoxALike, TPoint } from './types';
 import { search } from './searcher';
 
 export class Engine {
@@ -229,7 +229,7 @@ export class Engine {
     [arr[a], arr[b]] = [arr[b], arr[a]];
   }
 
-  public search(target: IBoxALike): number[] {
+  public search(target: IBoxALike | TPoint): number[] {
     const result: number[] = [];
 
     if (!this.bvhNodes?.length) {

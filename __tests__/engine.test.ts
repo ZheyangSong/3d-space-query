@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from '@jest/globals';
 import { genGroundTruth, genTestData } from './utils';
-import { Engine, NativeEngine } from '../src';
+import { Engine, NativeEngine, IBoxALike } from '../src';
 import { getTimeMeasurer } from '../utils';
 
 let groundTruth: ReturnType<typeof genGroundTruth>;
@@ -131,5 +131,53 @@ describe(`correctness & timing (${primitiveCnt} primitives, ${targetCnt} search 
 
       expect(wasm).toBeLessThan(js);
     });
+  });
+});
+
+describe("JS Engine supports point query", () => {
+  const targetPoint = [2, 2, 2];
+
+  it("point at box boundary is considered inclusion", () => {
+    const boxes: IBoxALike[] = [{
+      aabbMin: [0, 0, 0],
+      aabbMax: [2, 2, 2],
+    }, {
+      aabbMin: [-1, -1, -1],
+      aabbMax: [-0.5, -0.5, -0.5],
+    }];
+
+    const e = new Engine();
+
+    e.build(boxes);
+
+    const indices = e.search(targetPoint);
+
+    expect(indices.length).toBe(1);
+    expect(indices[0]).toBe(0);
+  });
+
+  it("containing box can be found", () => {
+    const boxes: IBoxALike[] = [{
+      aabbMin: [1, 1, 1],
+      aabbMax: [3, 3, 3],
+    }, {
+      aabbMin: [-1, -1, -1],
+      aabbMax: [-0.5, -0.5, -0.5],
+    }, {
+      aabbMin: [0.5, 0.5, 0.5],
+      aabbMax: [2.5, 2.5, 2.5]
+    }, {
+      aabbMin: [1.7, 1.7, 1.7],
+      aabbMax: [4.2, 4.2, 4.2]
+    }];
+
+    const e = new Engine();
+
+    e.build(boxes);
+
+    const indices = e.search(targetPoint);
+
+    expect(indices.length).toBe(3);
+    expect(indices.sort((a, b) => a - b)).toEqual([0, 2, 3]);
   });
 });

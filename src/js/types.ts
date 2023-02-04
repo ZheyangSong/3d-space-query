@@ -4,3 +4,5 @@ export interface IBoxALike {
   aabbMin: NumericArrayLike;
   aabbMax: NumericArrayLike;
 }
+
+export type TPoint = NumericArrayLike;

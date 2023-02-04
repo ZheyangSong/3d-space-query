@@ -1,3 +1,3 @@
 export * from './Engine';
 
-export { IBoxALike } from './types';
+export { IBoxALike, TPoint } from './types';

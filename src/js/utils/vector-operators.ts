@@ -1,4 +1,4 @@
-import { NumericArrayLike } from '../types';
+import { NumericArrayLike } from "../types";
 
 /**
  * Expand all dimensions of vector `a` by vector `b` as lower bound.
@@ -25,9 +25,5 @@ export function expandToMax(a: NumericArrayLike, b: NumericArrayLike): void {
 }
 
 export function subtract(a: NumericArrayLike, b: NumericArrayLike) {
-  return [
-    (a[0] - b[0]) || 0,
-    (a[1] - b[1]) || 0,
-    (a[2] - b[2]) || 0,
-  ]
+  return [a[0] - b[0] || 0, a[1] - b[1] || 0, a[2] - b[2] || 0];
 }

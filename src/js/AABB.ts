@@ -1,5 +1,5 @@
-import { IBoxALike } from './types';
-import { expandToMax, expandToMin, surfaceArea } from './utils';
+import { IBoxALike } from "./types";
+import { expandToMax, expandToMin, surfaceArea } from "./utils";
 
 export class AABB implements IBoxALike {
   public aabbMin: number[];

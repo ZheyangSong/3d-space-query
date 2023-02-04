@@ -1,7 +1,11 @@
-import { IBoxALike, TPoint, NumericArrayLike } from '../types';
-import { isPoint } from './misc';
+import { IBoxALike, TPoint, NumericArrayLike } from "../types";
+import { isPoint } from "./misc";
 
-export function isIntersected(shape: IBoxALike | TPoint, bmin: NumericArrayLike, bmax: NumericArrayLike) {
+export function isIntersected(
+  shape: IBoxALike | TPoint,
+  bmin: NumericArrayLike,
+  bmax: NumericArrayLike
+) {
   if (isPoint(shape)) {
     return intersectPoint(shape, bmin, bmax);
   } else {
@@ -9,7 +13,11 @@ export function isIntersected(shape: IBoxALike | TPoint, bmin: NumericArrayLike,
   }
 }
 
-function intersectBox(box: IBoxALike, bmin: NumericArrayLike, bmax: NumericArrayLike) {
+function intersectBox(
+  box: IBoxALike,
+  bmin: NumericArrayLike,
+  bmax: NumericArrayLike
+) {
   return (
     box.aabbMax[0] >= bmin[0] &&
     box.aabbMin[0] <= bmax[0] &&
@@ -20,7 +28,11 @@ function intersectBox(box: IBoxALike, bmin: NumericArrayLike, bmax: NumericArray
   );
 }
 
-function intersectPoint(point: TPoint, bmin: NumericArrayLike, bmax: NumericArrayLike) {
+function intersectPoint(
+  point: TPoint,
+  bmin: NumericArrayLike,
+  bmax: NumericArrayLike
+) {
   return (
     point[0] >= bmin[0] &&
     point[0] <= bmax[0] &&

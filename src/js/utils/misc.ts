@@ -1,5 +1,5 @@
-import { IBoxALike, TPoint } from '../types';
-import { subtract } from './vector-operators';
+import { IBoxALike, TPoint } from "../types";
+import { subtract } from "./vector-operators";
 
 /**
  * Calculate the surface area (half) of given `box`.

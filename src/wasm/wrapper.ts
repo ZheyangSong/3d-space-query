@@ -1,6 +1,6 @@
 import WasmLoader, { Lib } from "./native/assembly_module/wasm-core.js";
 import { IBoxALike } from "../js/types";
-import { search, ISearchTree } from '../js/searcher';
+import { search, ISearchTree } from "../js/searcher";
 import { MemoryAllocator } from "./memory-allocator";
 
 export class NativeEngine {

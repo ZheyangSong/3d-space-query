@@ -1,7 +1,9 @@
-import { IBoxALike } from '../../src/js';
-import { intersectAABB } from '../../src/js/utils';
+import { IBoxALike, TPoint } from '../../src/js';
+import { isIntersected } from '../../src/js/utils';
 
-export function genGroundTruth(primitives: IBoxALike[], targets: IBoxALike[]) {
+type TTarget = (IBoxALike | TPoint);
+
+export function genGroundTruth(primitives: IBoxALike[], targets: TTarget[]) {
   const start = performance.now();
   const result = brutalForceSearch(primitives, targets);
   const executionTime = performance.now() - start;
@@ -12,7 +14,7 @@ export function genGroundTruth(primitives: IBoxALike[], targets: IBoxALike[]) {
   };
 }
 
-function brutalForceSearch(primitives: IBoxALike[], targets: IBoxALike[]) {
+function brutalForceSearch(primitives: IBoxALike[], targets: TTarget[]) {
   const result: number[][] = [];
   const primitiveCnt = primitives.length;
 
@@ -22,7 +24,7 @@ function brutalForceSearch(primitives: IBoxALike[], targets: IBoxALike[]) {
     for (let i = 0; i < primitiveCnt; i++) {
       const primitive = primitives[i];
 
-      if (intersectAABB(target, primitive.aabbMin, primitive.aabbMax)) {
+      if (isIntersected(target, primitive.aabbMin, primitive.aabbMax)) {
         currResult.push(i);
       }
     }

@@ -1,4 +1,4 @@
-import { IBoxALike } from '../types';
+import { IBoxALike, TPoint } from '../types';
 import { subtract } from './vector-operators';
 
 /**
@@ -23,4 +23,8 @@ export function simpleDeepClone<S = any>(serializable: S) {
   } catch {
     return serializable;
   }
+}
+
+export function isPoint(shape: IBoxALike | TPoint): shape is TPoint {
+  return !("aabbMin" in shape);
 }

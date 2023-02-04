@@ -1,13 +1,13 @@
 import { BVHNode } from "./BVHNode";
-import { IBoxALike } from "./types";
-import { intersectAABB } from './utils';
+import { IBoxALike, TPoint } from "./types";
+import { isIntersected } from './utils';
 
 export interface ISearchTree {
   bvhNodes: BVHNode[];
   primitiveIndices: number[];
 }
 
-export function search(target: IBoxALike, tree: ISearchTree) {
+export function search(target: IBoxALike | TPoint, tree: ISearchTree) {
   const result: number[] = [];
 
   if (tree.bvhNodes.length) {
@@ -18,14 +18,14 @@ export function search(target: IBoxALike, tree: ISearchTree) {
 }
 
 function intersect(
-  target: IBoxALike,
+  target: IBoxALike | TPoint,
   nodeIdx: number,
   tree: ISearchTree,
   result: number[]
 ) {
   const node = tree.bvhNodes[nodeIdx];
 
-  if (!intersectAABB(target, node.aabbMin, node.aabbMax)) {
+  if (!isIntersected(target, node.aabbMin, node.aabbMax)) {
     return;
   }
 

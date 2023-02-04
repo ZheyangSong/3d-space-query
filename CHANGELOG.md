@@ -17,3 +17,6 @@
 
 ## 1.2.2
 - fix broken `Engine.search` when an `Engine` is instantiated via `Engine.from`.
+
+## 1.3.0
+- add support for query using point (TPoint) in `Engine`

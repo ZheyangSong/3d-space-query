@@ -9,14 +9,14 @@ import {
   simpleDeepClone,
   calcAxialMidPoint,
 } from "./utils";
-import type { IBoxALike, TPoint } from "./types";
+import type { IBoxALike, TPoint, IPacked } from "./types";
 import { search } from "./searcher";
 
 export class Engine {
   public static from(
     obj:
       | { bvhNodes: BVHNode[]; primitiveIndices: number[] }
-      | { bvhNodes: Float32Array; primitiveIndices: Uint32Array }
+      | Omit<IPacked, "NODE_SIZE">
   ) {
     const e = new Engine();
     const { bvhNodes, primitiveIndices } = obj;
@@ -304,10 +304,10 @@ export class Engine {
    *
    * @param packed Return the internal indexed data structure in packed format if true.
    */
-  public serialize(packed?: true): ReturnType<typeof this.packingStructure>;
+  public serialize(packed?: true): IPacked;
   public serialize(packed?: false): {
-    bvhNodes: typeof this.bvhNodes;
-    primitiveIndices: typeof this.primitiveIndices;
+    bvhNodes: BVHNode[];
+    primitiveIndices: number[];
   };
   public serialize(packed = false) {
     if (packed) {
@@ -320,7 +320,7 @@ export class Engine {
     }
   }
 
-  private packingStructure() {
+  private packingStructure(): IPacked {
     const packedNodes = new Float32Array(this.nodesUsed * BVHNode.SIZE);
     const packedPrimitiveIndices = new Uint32Array(this.nodesUsed);
 

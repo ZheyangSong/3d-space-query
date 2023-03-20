@@ -13,12 +13,41 @@ import type { IBoxALike, TPoint } from "./types";
 import { search } from "./searcher";
 
 export class Engine {
-  public static from(obj: { bvhNodes: BVHNode[]; primitiveIndices: number[] }) {
+  public static from(obj: { bvhNodes: BVHNode[]; primitiveIndices: number[] } | { bvhNodes: Float32Array; primitiveIndices: Uint32Array; }) {
     const e = new Engine();
+    const { bvhNodes, primitiveIndices } = obj;
 
-    e.bvhNodes = simpleDeepClone(obj.bvhNodes);
-    e.primitiveIndices = simpleDeepClone(obj.primitiveIndices);
-    e.nodesUsed = e.bvhNodes!.length;
+    if (bvhNodes instanceof Float32Array) {
+      if (!(bvhNodes.length % BVHNode.SIZE)) {
+        console.warn("input node list isn't valid");
+
+        return e;
+      }
+
+      const nodesUsed = bvhNodes.length / BVHNode.SIZE;
+      e.bvhNodes = [];
+      e.primitiveIndices = [];
+      e.nodesUsed = nodesUsed;
+
+      for (let i = 0; i < nodesUsed; i++) {
+        const offset = i * BVHNode.SIZE;
+
+        const node = new BVHNode();
+        node.aabbMin = [bvhNodes[offset], bvhNodes[offset + 1], bvhNodes[offset + 2]];
+        node.aabbMax = [bvhNodes[offset + 3], bvhNodes[offset + 4], bvhNodes[offset + 5]];
+        node.leftFirst = bvhNodes[offset + 6];
+        node.primCount = bvhNodes[offset + 7];
+
+        e.bvhNodes.push(node);
+        e.primitiveIndices.push(primitiveIndices[i]);
+      }
+
+      return e;
+    } else {
+      e.bvhNodes = simpleDeepClone(obj.bvhNodes);
+      e.primitiveIndices = simpleDeepClone(obj.primitiveIndices);
+      e.nodesUsed = e.bvhNodes.length;
+    }
 
     return e;
   }
@@ -250,5 +279,54 @@ export class Engine {
       bvhNodes: this.bvhNodes,
       primitiveIndices: this.primitiveIndices,
     });
+  }
+
+  /**
+   * Returning the internal indexed data sturcture.
+   * 
+   * In `packed` return, the element of `bvhNodes` is arrayed in below format:
+   *   |aabbmin(3)|aabbmax(3)|leftFirst(1)|primitiveCnt(1)|
+   *
+   * Note: though `leftFirst` and `primitiveCnt` are stored in float format.
+   *       They should be interepeted as integer.
+   *
+   * @param packed Return the internal indexed data structure in packed format if true.
+   */
+  public serialize(packed?: true): ReturnType<typeof this.packingStructure>;
+  public serialize(packed?: false): { bvhNodes: typeof this.bvhNodes; primitiveIndices: typeof this.primitiveIndices; };
+  public serialize(packed = false) {
+    if (packed) {
+      return this.packingStructure();
+    } else {
+      return {
+        bvhNodes: simpleDeepClone(this.bvhNodes),
+        primitiveIndices: simpleDeepClone(this.primitiveIndices),
+      };
+    }
+  }
+
+  private packingStructure() {
+    const packedNodes = new Float32Array(this.nodesUsed * BVHNode.SIZE);
+    const packedPrimitiveIndices = new Uint32Array(this.nodesUsed);
+
+    for (let i = 0; i < this.nodesUsed; i++) {
+      const offset = i * BVHNode.SIZE;
+      const currNode = this.bvhNodes[i];
+
+      packedNodes.set([
+        ...currNode.aabbMin,
+        ...currNode.aabbMax,
+        currNode.leftFirst,
+        currNode.primCount,
+      ], offset);
+
+      packedPrimitiveIndices[i] = this.primitiveIndices[i];
+    }
+
+    return {
+      bvhNodes: packedNodes,
+      primitiveIndices: packedPrimitiveIndices,
+      NODE_SIZE: BVHNode.SIZE,
+    };
   }
 }

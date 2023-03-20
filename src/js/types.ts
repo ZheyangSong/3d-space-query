@@ -6,3 +6,9 @@ export interface IBoxALike {
 }
 
 export type TPoint = NumericArrayLike;
+
+export interface IPacked {
+  bvhNodes: Float32Array;
+  primitiveIndices: Uint32Array;
+  NODE_SIZE: number;
+}

@@ -13,7 +13,11 @@ import type { IBoxALike, TPoint } from "./types";
 import { search } from "./searcher";
 
 export class Engine {
-  public static from(obj: { bvhNodes: BVHNode[]; primitiveIndices: number[] } | { bvhNodes: Float32Array; primitiveIndices: Uint32Array; }) {
+  public static from(
+    obj:
+      | { bvhNodes: BVHNode[]; primitiveIndices: number[] }
+      | { bvhNodes: Float32Array; primitiveIndices: Uint32Array }
+  ) {
     const e = new Engine();
     const { bvhNodes, primitiveIndices } = obj;
 
@@ -33,8 +37,16 @@ export class Engine {
         const offset = i * BVHNode.SIZE;
 
         const node = new BVHNode();
-        node.aabbMin = [bvhNodes[offset], bvhNodes[offset + 1], bvhNodes[offset + 2]];
-        node.aabbMax = [bvhNodes[offset + 3], bvhNodes[offset + 4], bvhNodes[offset + 5]];
+        node.aabbMin = [
+          bvhNodes[offset],
+          bvhNodes[offset + 1],
+          bvhNodes[offset + 2],
+        ];
+        node.aabbMax = [
+          bvhNodes[offset + 3],
+          bvhNodes[offset + 4],
+          bvhNodes[offset + 5],
+        ];
         node.leftFirst = bvhNodes[offset + 6];
         node.primCount = bvhNodes[offset + 7];
 
@@ -283,7 +295,7 @@ export class Engine {
 
   /**
    * Returning the internal indexed data sturcture.
-   * 
+   *
    * In `packed` return, the element of `bvhNodes` is arrayed in below format:
    *   |aabbmin(3)|aabbmax(3)|leftFirst(1)|primitiveCnt(1)|
    *
@@ -293,7 +305,10 @@ export class Engine {
    * @param packed Return the internal indexed data structure in packed format if true.
    */
   public serialize(packed?: true): ReturnType<typeof this.packingStructure>;
-  public serialize(packed?: false): { bvhNodes: typeof this.bvhNodes; primitiveIndices: typeof this.primitiveIndices; };
+  public serialize(packed?: false): {
+    bvhNodes: typeof this.bvhNodes;
+    primitiveIndices: typeof this.primitiveIndices;
+  };
   public serialize(packed = false) {
     if (packed) {
       return this.packingStructure();
@@ -313,12 +328,15 @@ export class Engine {
       const offset = i * BVHNode.SIZE;
       const currNode = this.bvhNodes[i];
 
-      packedNodes.set([
-        ...currNode.aabbMin,
-        ...currNode.aabbMax,
-        currNode.leftFirst,
-        currNode.primCount,
-      ], offset);
+      packedNodes.set(
+        [
+          ...currNode.aabbMin,
+          ...currNode.aabbMax,
+          currNode.leftFirst,
+          currNode.primCount,
+        ],
+        offset
+      );
 
       packedPrimitiveIndices[i] = this.primitiveIndices[i];
     }

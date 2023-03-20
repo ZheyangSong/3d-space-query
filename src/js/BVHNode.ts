@@ -1,5 +1,5 @@
 export class BVHNode {
-  static SIZE = 3 + 3 + 1 +1;
+  static SIZE = 3 + 3 + 1 + 1;
 
   public aabbMin: number[];
   public aabbMax: number[];

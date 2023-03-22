@@ -23,3 +23,6 @@
 
 ## 1.4.0
 - add support for exporting the data structure built by engine. The exported might be used for GPU ray-tracing or spatial searching.
+
+## 1.4.1
+- issue fix: the primitive index list is longer in packed mode.

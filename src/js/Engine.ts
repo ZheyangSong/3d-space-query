@@ -322,7 +322,7 @@ export class Engine {
 
   private packingStructure(): IPacked {
     const packedNodes = new Float32Array(this.nodesUsed * BVHNode.SIZE);
-    const packedPrimitiveIndices = new Uint32Array(this.nodesUsed);
+    const packedPrimitiveIndices = new Uint32Array(this.primitiveIndices);
 
     for (let i = 0; i < this.nodesUsed; i++) {
       const offset = i * BVHNode.SIZE;
@@ -337,8 +337,6 @@ export class Engine {
         ],
         offset
       );
-
-      packedPrimitiveIndices[i] = this.primitiveIndices[i];
     }
 
     return {
